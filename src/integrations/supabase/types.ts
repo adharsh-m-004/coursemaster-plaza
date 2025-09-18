@@ -14,7 +14,284 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          receiver_id: string
+          sender_id: string
+          transaction_id: string | null
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          receiver_id: string
+          sender_id: string
+          transaction_id?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          receiver_id?: string
+          sender_id?: string
+          transaction_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "messages_sender_id_fkey"
+            columns: ["sender_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "messages_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string
+          full_name: string
+          id: string
+          location: string | null
+          phone: string | null
+          rating: number | null
+          skills: string[] | null
+          time_credits: number | null
+          total_reviews: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email: string
+          full_name: string
+          id?: string
+          location?: string | null
+          phone?: string | null
+          rating?: number | null
+          skills?: string[] | null
+          time_credits?: number | null
+          total_reviews?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string
+          id?: string
+          location?: string | null
+          phone?: string | null
+          rating?: number | null
+          skills?: string[] | null
+          time_credits?: number | null
+          total_reviews?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      reviews: {
+        Row: {
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          reviewee_id: string
+          reviewer_id: string
+          transaction_id: string
+        }
+        Insert: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          reviewee_id: string
+          reviewer_id: string
+          transaction_id: string
+        }
+        Update: {
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          reviewee_id?: string
+          reviewer_id?: string
+          transaction_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_reviewee_id_fkey"
+            columns: ["reviewee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "reviews_transaction_id_fkey"
+            columns: ["transaction_id"]
+            isOneToOne: false
+            referencedRelation: "transactions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      services: {
+        Row: {
+          category: string
+          created_at: string
+          credits_per_hour: number
+          description: string
+          duration_hours: number
+          id: string
+          is_active: boolean | null
+          location: string | null
+          provider_id: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          credits_per_hour?: number
+          description: string
+          duration_hours?: number
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          provider_id: string
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          credits_per_hour?: number
+          description?: string
+          duration_hours?: number
+          id?: string
+          is_active?: boolean | null
+          location?: string | null
+          provider_id?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "services_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      transactions: {
+        Row: {
+          completion_date: string | null
+          created_at: string
+          credits_amount: number
+          id: string
+          notes: string | null
+          provider_confirmed: boolean | null
+          provider_id: string
+          receiver_confirmed: boolean | null
+          receiver_id: string
+          scheduled_date: string | null
+          service_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          completion_date?: string | null
+          created_at?: string
+          credits_amount: number
+          id?: string
+          notes?: string | null
+          provider_confirmed?: boolean | null
+          provider_id: string
+          receiver_confirmed?: boolean | null
+          receiver_id: string
+          scheduled_date?: string | null
+          service_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          completion_date?: string | null
+          created_at?: string
+          credits_amount?: number
+          id?: string
+          notes?: string | null
+          provider_confirmed?: boolean | null
+          provider_id?: string
+          receiver_confirmed?: boolean | null
+          receiver_id?: string
+          scheduled_date?: string | null
+          service_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_receiver_id_fkey"
+            columns: ["receiver_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "transactions_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
