@@ -86,17 +86,47 @@ const Dashboard = () => {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("*")
+        .select("id, user_id, full_name, email, time_credits, rating, total_reviews, location, bio, skills")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
-      if (error) throw error;
-      setProfile(data);
+      if (error) {
+        console.error("Profile query error:", error);
+        throw error;
+      }
+      
+      if (!data) {
+        // Profile doesn't exist, create one
+        const { data: newProfile, error: createError } = await supabase
+          .from("profiles")
+          .insert({
+            user_id: userId,
+            email: user?.email || "",
+            full_name: user?.user_metadata?.full_name || "User",
+            location: user?.user_metadata?.location || null,
+            bio: user?.user_metadata?.bio || null,
+            skills: user?.user_metadata?.skills ? 
+              (typeof user.user_metadata.skills === 'string' ? 
+                user.user_metadata.skills.split(',').map((s: string) => s.trim()).filter(Boolean) : 
+                user.user_metadata.skills) : []
+          })
+          .select()
+          .single();
+          
+        if (createError) {
+          console.error("Profile creation error:", createError);
+          throw createError;
+        }
+        
+        setProfile(newProfile);
+      } else {
+        setProfile(data);
+      }
     } catch (error) {
       console.error("Error loading profile:", error);
       toast({
-        title: "Error",
-        description: "Failed to load user profile",
+        title: "Profile Error",
+        description: "Failed to load user profile. Please try refreshing the page.",
         variant: "destructive",
       });
     } finally {

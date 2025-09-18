@@ -2,26 +2,30 @@ import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Coins, Clock, Users, Star, ArrowRight, CheckCircle } from "lucide-react";
+import { Coins, Clock, Users, Star, ArrowRight, CheckCircle, BookOpen, Palette, Code, Music, Dumbbell, ChefHat, Globe, Hammer } from "lucide-react";
 
 const Index = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50">
       {/* Header */}
-      <header className="border-b bg-card">
+      <header className="backdrop-blur-sm bg-white/80 border-b border-white/20 sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <Coins className="h-8 w-8 text-primary" />
-              <h1 className="text-2xl font-bold">SkillSwap</h1>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
+                <Coins className="h-6 w-6 text-white" />
+              </div>
+              <h1 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                SkillSwap
+              </h1>
             </div>
-            <div className="flex items-center gap-4">
-              <Button variant="outline" onClick={() => navigate("/auth")}>
+            <div className="flex items-center gap-3">
+              <Button variant="ghost" onClick={() => navigate("/auth")} className="text-gray-600 hover:text-gray-900">
                 Sign In
               </Button>
-              <Button onClick={() => navigate("/auth")}>
+              <Button onClick={() => navigate("/auth")} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
                 Get Started
               </Button>
             </div>
@@ -30,23 +34,72 @@ const Index = () => {
       </header>
 
       {/* Hero Section */}
-      <section className="container mx-auto px-4 py-16 text-center">
-        <div className="max-w-4xl mx-auto">
-          <h2 className="text-5xl font-bold mb-6">
-            Trade Skills, Earn Time Credits, Build Community
+      <section className="container mx-auto px-4 py-20 text-center relative">
+        <div className="absolute inset-0 bg-gradient-to-r from-blue-600/10 to-purple-600/10 rounded-3xl blur-3xl"></div>
+        <div className="max-w-5xl mx-auto relative z-10">
+          <div className="inline-flex items-center gap-2 bg-white/60 backdrop-blur-sm border border-white/20 rounded-full px-4 py-2 mb-8">
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+            <span className="text-sm font-medium text-gray-700">Join 1000+ skill traders worldwide</span>
+          </div>
+          
+          <h2 className="text-6xl md:text-7xl font-bold mb-8 leading-tight">
+            <span className="bg-gradient-to-r from-gray-900 via-blue-800 to-purple-800 bg-clip-text text-transparent">
+              Trade Skills,
+            </span>
+            <br />
+            <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+              Build Community
+            </span>
           </h2>
-          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto">
-            SkillSwap is a time-banking platform where you can exchange skills and services 
-            with others in your community using time as currency. One hour of effort equals one time credit.
+          
+          <p className="text-xl text-gray-600 mb-12 max-w-3xl mx-auto leading-relaxed">
+            Transform your skills into time credits. Connect with your community through our innovative 
+            time-banking platform where every hour of help equals one credit.
           </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8">
-              Join SkillSwap
+          
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            <Button 
+              size="lg" 
+              onClick={() => navigate("/auth")} 
+              className="text-lg px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
+            >
+              Start Trading Skills
               <ArrowRight className="ml-2 h-5 w-5" />
             </Button>
-            <Button size="lg" variant="outline" onClick={() => navigate("/dashboard")} className="text-lg px-8">
-              Browse Services
+            <Button 
+              size="lg" 
+              variant="outline" 
+              onClick={() => navigate("/dashboard")} 
+              className="text-lg px-8 py-4 border-2 border-gray-200 hover:border-gray-300 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-200"
+            >
+              Explore Services
             </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            <div className="bg-white/60 backdrop-blur-sm border border-white/20 rounded-2xl p-6 hover:bg-white/80 transition-all duration-200">
+              <div className="w-12 h-12 bg-gradient-to-r from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <CheckCircle className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Equal Value</h3>
+              <p className="text-sm text-gray-600">Every hour is worth the same - promoting fairness and equality</p>
+            </div>
+            
+            <div className="bg-white/60 backdrop-blur-sm border border-white/20 rounded-2xl p-6 hover:bg-white/80 transition-all duration-200">
+              <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-cyan-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Users className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">Community First</h3>
+              <p className="text-sm text-gray-600">Build meaningful connections with neighbors and locals</p>
+            </div>
+            
+            <div className="bg-white/60 backdrop-blur-sm border border-white/20 rounded-2xl p-6 hover:bg-white/80 transition-all duration-200">
+              <div className="w-12 h-12 bg-gradient-to-r from-purple-500 to-pink-500 rounded-xl flex items-center justify-center mx-auto mb-4">
+                <Coins className="h-6 w-6 text-white" />
+              </div>
+              <h3 className="font-semibold text-gray-900 mb-2">No Money Needed</h3>
+              <p className="text-sm text-gray-600">Trade skills without financial barriers or cash transactions</p>
+            </div>
           </div>
         </div>
       </section>
