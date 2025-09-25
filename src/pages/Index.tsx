@@ -23,10 +23,7 @@ const Index = () => {
             </div>
             <div className="flex items-center gap-3">
               <Button variant="ghost" onClick={() => navigate("/auth")} className="text-gray-600 hover:text-gray-900">
-                Sign In
-              </Button>
-              <Button onClick={() => navigate("/auth")} className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
-                Get Started
+                Sign In/Sign Up
               </Button>
             </div>
           </div>
@@ -56,25 +53,6 @@ const Index = () => {
             Transform your skills into time credits. Connect with your community through our innovative 
             time-banking platform where every hour of help equals one credit.
           </p>
-          
-          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-            <Button 
-              size="lg" 
-              onClick={() => navigate("/auth")} 
-              className="text-lg px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-200"
-            >
-              Start Trading Skills
-              <ArrowRight className="ml-2 h-5 w-5" />
-            </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              onClick={() => navigate("/dashboard")} 
-              className="text-lg px-8 py-4 border-2 border-gray-200 hover:border-gray-300 bg-white/60 backdrop-blur-sm hover:bg-white/80 transition-all duration-200"
-            >
-              Explore Services
-            </Button>
-          </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-4xl mx-auto">
             <div className="bg-white/60 backdrop-blur-sm border border-white/20 rounded-2xl p-6 hover:bg-white/80 transition-all duration-200">
@@ -241,12 +219,6 @@ const Index = () => {
               Join our growing community of skill traders and start building connections today. 
               Sign up now and get 10 free time credits to begin your journey.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" onClick={() => navigate("/auth")} className="text-lg px-8">
-                <Coins className="mr-2 h-5 w-5" />
-                Start Trading Skills
-              </Button>
-            </div>
           </div>
         </div>
       </section>

@@ -210,6 +210,15 @@ const Dashboard = () => {
               <Coins className="h-6 w-6 text-primary" />
               <h1 className="text-2xl font-bold">SkillSwap</h1>
             </div>
+
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <Coins className="h-6 w-6 text-primary" />
+              <h1 className="text-2xl font-bold">Welcome {profile.full_name}</h1>
+            </div>
+          </div>
+        </div>
             
             <div className="flex items-center gap-4">
               {profile && (
@@ -237,7 +246,6 @@ const Dashboard = () => {
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       <main className="container mx-auto px-4 py-8">
         {/* Welcome Section */}
