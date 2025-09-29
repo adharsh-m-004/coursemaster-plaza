@@ -10,6 +10,7 @@ import ServiceDetail from "./pages/ServiceDetail";
 import UploadService from "./pages/UploadService";
 import NotFound from "./pages/NotFound";
 import Profile from "./pages/Profile";
+import SessionWatcher from "./components/SessionWatcher";
 
 const queryClient = new QueryClient();
 
@@ -18,6 +19,7 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
+      <SessionWatcher />
       <BrowserRouter
         future={{
           v7_startTransition: true,

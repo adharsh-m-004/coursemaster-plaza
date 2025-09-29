@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
-import { User, Session } from '@supabase/supabase-js';
+import { User } from '@supabase/supabase-js';
+import AvailabilityCalendar from "@/components/AvailabilityCalendar";
+import BookingRequest from "@/components/BookingRequest";
 import { 
   Coins, 
   Clock, 
@@ -57,53 +59,27 @@ interface Review {
   };
 }
 
+interface AvailabilitySlot {
+  id: string;
+  start_time: string;
+  end_time: string;
+  is_available: boolean;
+}
+
 const ServiceDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [service, setService] = useState<Service | null>(null);
   const [provider, setProvider] = useState<Provider | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [isBooking, setIsBooking] = useState(false);
+  const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const { toast } = useToast();
-
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (!session?.user) {
-          navigate("/auth");
-        }
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      
-      if (!session?.user) {
-        navigate("/auth");
-        return;
-      }
-      
-      if (id) {
-        loadServiceData(id);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, [navigate, id]);
 
   const loadServiceData = async (serviceId: string) => {
     try {
       setIsLoading(true);
-      
       // Load service details
       const { data: serviceData, error: serviceError } = await supabase
         .from("services")
@@ -124,9 +100,9 @@ const ServiceDetail = () => {
       if (providerError) throw providerError;
       setProvider(providerData);
 
-      // Load reviews for this provider
-      const { data: reviewsData, error: reviewsError } = await supabase
-        .from("reviews")
+      // Load reviews for this service
+      const { data: reviewsData, error: reviewsError } = await (supabase as any)
+        .from("reviews" as any)
         .select(`
           *,
           profiles!reviews_reviewer_id_fkey (
@@ -134,9 +110,9 @@ const ServiceDetail = () => {
             avatar_url
           )
         `)
-        .eq("reviewee_id", serviceData.provider_id)
+        .eq("service_id", serviceData.id)
         .order("created_at", { ascending: false })
-        .limit(5);
+        .limit(10);
 
       if (reviewsError) throw reviewsError;
       setReviews(reviewsData || []);
@@ -153,62 +129,43 @@ const ServiceDetail = () => {
     }
   };
 
-  const handleBookService = async () => {
-    if (!service || !user) return;
+  useEffect(() => {
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (_event, session) => {
+        setUser(session?.user ?? null);
+        if (!session?.user) {
+          navigate("/auth");
+        }
+      }
+    );
 
-    setIsBooking(true);
-    try {
-      // Check if user has enough credits
-      const { data: userProfile, error: profileError } = await supabase
-        .from("profiles")
-        .select("time_credits")
-        .eq("user_id", user.id)
-        .single();
-
-      if (profileError) throw profileError;
-
-      const totalCredits = service.credits_per_hour * service.duration_hours;
-      
-      if (userProfile.time_credits < totalCredits) {
-        toast({
-          title: "Insufficient Credits",
-          description: `You need ${totalCredits} credits but only have ${userProfile.time_credits}`,
-          variant: "destructive",
-        });
+    // Check for existing session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      if (!session?.user) {
+        navigate("/auth");
         return;
       }
-
-      // Create transaction
-      const { error: transactionError } = await supabase
-        .from("transactions")
-        .insert({
-          service_id: service.id,
-          provider_id: service.provider_id,
-          receiver_id: user.id,
-          credits_amount: totalCredits,
-          status: "pending"
-        });
-
-      if (transactionError) throw transactionError;
-
-      toast({
-        title: "Service Booked!",
-        description: "Your booking request has been sent to the provider",
-      });
-
-      // Redirect to transactions/bookings page (would need to create this)
-      navigate("/dashboard");
       
-    } catch (error) {
-      console.error("Error booking service:", error);
-      toast({
-        title: "Booking Failed",
-        description: "Failed to book the service. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsBooking(false);
-    }
+      if (id) {
+        loadServiceData(id);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate, id]);
+
+  const handleSlotSelect = (slot: AvailabilitySlot) => {
+    setSelectedSlot(slot);
+  };
+
+  const handleBookingCreated = () => {
+    toast({
+      title: "Booking Request Sent!",
+      description: "Your booking request has been sent to the provider. You'll be notified when they respond.",
+    });
+    navigate("/dashboard");
   };
 
   if (isLoading) {
@@ -321,14 +278,23 @@ const ServiceDetail = () => {
               </CardContent>
             </Card>
 
-            {/* Provider Reviews */}
+            {/* Availability Section */}
+            {user?.id !== provider.user_id && (
+              <div id="availability-section">
+                <AvailabilityCalendar
+                  serviceId={service.id}
+                  providerId={service.provider_id}
+                  mode="view"
+                  onSlotSelect={handleSlotSelect}
+                />
+              </div>
+            )}
+
+            {/* Service Reviews */}
             <Card>
               <CardHeader>
-                <CardTitle>Reviews for {provider.full_name}</CardTitle>
-                <CardDescription>
-                  {provider.total_reviews} review{provider.total_reviews !== 1 ? 's' : ''} • 
-                  {provider.rating.toFixed(1)} average rating
-                </CardDescription>
+                <CardTitle>Service Reviews</CardTitle>
+                <CardDescription>What learners say about this specific service</CardDescription>
               </CardHeader>
               <CardContent>
                 {reviews.length > 0 ? (
@@ -440,17 +406,15 @@ const ServiceDetail = () => {
                 <div className="space-y-2">
                   <Button 
                     className="w-full" 
-                    onClick={handleBookService}
-                    disabled={isBooking || user?.id === provider.user_id}
+                    onClick={() => document.getElementById('availability-section')?.scrollIntoView({ behavior: 'smooth' })}
+                    disabled={user?.id === provider.user_id}
                   >
-                    {isBooking ? (
-                      "Booking..."
-                    ) : user?.id === provider.user_id ? (
+                    {user?.id === provider.user_id ? (
                       "Your Service"
                     ) : (
                       <>
                         <Calendar className="h-4 w-4 mr-2" />
-                        Book Service ({totalCredits} credits)
+                        View Availability
                       </>
                     )}
                   </Button>
@@ -495,6 +459,18 @@ const ServiceDetail = () => {
           </div>
         </div>
       </main>
+
+      {/* Booking Request Dialog */}
+      {selectedSlot && service && provider && user && (
+        <BookingRequest
+          slot={selectedSlot}
+          service={service}
+          provider={provider}
+          learner_id={user.id}
+          onClose={() => setSelectedSlot(null)}
+          onBookingCreated={handleBookingCreated}
+        />
+      )}
     </div>
   );
 };
