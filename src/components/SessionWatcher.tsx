@@ -274,14 +274,12 @@ const openPostSessionDispute = async (reason?: string) => {
     console.error("SessionWatcher: openPostSessionDispute failed", e);
   }
 };
-
 const submitReview = async () => {
   if (!user || !reviewPopup) return;
   setSubmittingReview(true);
   try {
     const payload: any = {
-      booking_id: reviewPopup.id,
-      service_id: reviewPopup.service_id,
+      transaction_id: reviewPopup.id,
       reviewee_id: reviewPopup.provider_id,
       reviewer_id: reviewPopup.learner_id,
       rating: reviewRating,
