@@ -314,7 +314,7 @@ const UploadService = () => {
 
           <Card className="mt-6">
             <CardHeader>
-              <CardTitle className="text-lg">Initial Availability (Optional)</CardTitle>
+              <CardTitle className="text-lg">Initial Availability *</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">

@@ -6,13 +6,14 @@ import { useToast } from "@/hooks/use-toast";
 import { Star } from "lucide-react";
 
 interface ReviewFormProps {
-  transactionId: string;
+  bookingId: string;
+  serviceId: string;
   revieweeId: string;
   reviewerId: string;
   onReviewSubmit: () => void;
 }
 
-const ReviewForm = ({ transactionId, revieweeId, reviewerId, onReviewSubmit }: ReviewFormProps) => {
+const ReviewForm = ({ bookingId, serviceId, revieweeId, reviewerId, onReviewSubmit }: ReviewFormProps) => {
   const [rating, setRating] = useState(0);
   const [hoverRating, setHoverRating] = useState(0);
   const [comment, setComment] = useState("");
@@ -32,15 +33,18 @@ const ReviewForm = ({ transactionId, revieweeId, reviewerId, onReviewSubmit }: R
 
     setIsSubmitting(true);
     try {
-      const { error } = await supabase.from("reviews").insert([
-        {
-          transaction_id: transactionId,
-          reviewee_id: revieweeId,
-          reviewer_id: reviewerId,
-          rating,
-          comment,
-        },
-      ]);
+      const { error } = await (supabase as any)
+        .from("reviews" as any)
+        .insert([
+          {
+            booking_id: bookingId,
+            service_id: serviceId,
+            reviewee_id: revieweeId,
+            reviewer_id: reviewerId,
+            rating,
+            comment,
+          },
+        ]);
 
       if (error) throw error;
 
@@ -51,9 +55,13 @@ const ReviewForm = ({ transactionId, revieweeId, reviewerId, onReviewSubmit }: R
       onReviewSubmit(); // Callback to refresh parent component
     } catch (error: any) {
       console.error("Error submitting review:", error);
-      const errorMessage = error.message?.includes('check constraint')
-        ? "A review for this service already exists."
-        : "Failed to submit your review. Please try again.";
+      const message: string = error?.message || "";
+      const errorMessage =
+        message.includes("reviews_booking_unique") || message.includes("duplicate key value")
+          ? "You've already submitted a review for this booking."
+          : message.includes("violates row-level security policy")
+          ? "You can only review completed bookings you participated in."
+          : "Failed to submit your review. Please try again.";
 
       toast({
         title: "Error Submitting Review",

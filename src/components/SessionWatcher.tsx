@@ -279,31 +279,41 @@ const submitReview = async () => {
   setSubmittingReview(true);
   try {
     const payload: any = {
-      transaction_id: reviewPopup.id,
+      booking_id: reviewPopup.id,
+      service_id: reviewPopup.service_id, // ensure this exists on your Booking type
       reviewee_id: reviewPopup.provider_id,
       reviewer_id: reviewPopup.learner_id,
       rating: reviewRating,
       comment: reviewComment?.trim() || null,
     };
 
-    const { error } = await (supabase as any)
+    const { error: insertError } = await (supabase as any)
       .from("reviews" as any)
-      .insert(payload);
-    if (error) throw error;
+      .insert([payload]);
+    if (insertError) throw insertError;
 
-    // Optional: mark prompted_at to avoid nagging and close dialog
     await (supabase as any)
       .from("booking_requests" as any)
-      .update({ review_prompted_at: new Date().toISOString() })
+      .update({
+        review_prompted_at: new Date().toISOString(),
+        review_submitted: true,
+      })
       .eq("id", reviewPopup.id);
 
     setReviewPopup(null);
     setReviewComment("");
     setReviewRating(5);
     toast({ description: "Thanks for your review!" });
-  } catch (e) {
+  } catch (e: any) {
     console.error("SessionWatcher: submitReview failed", e);
-    toast({ description: "Failed to submit review. Please try again.", variant: "destructive" });
+    const message = e?.message || "";
+    const errorMessage =
+      message.includes("reviews_booking_unique") || message.includes("duplicate key value")
+        ? "You've already submitted a review for this booking."
+        : message.includes("violates row-level security policy")
+        ? "You can only review completed bookings you participated in."
+        : "Failed to submit review. Please try again.";
+    toast({ description: errorMessage, variant: "destructive" });
   } finally {
     setSubmittingReview(false);
   }
@@ -381,7 +391,7 @@ const skipReview = async () => {
                     if (inWindow) {
                       return (
                         <Button className="w-full" onClick={() => window.open(sessionPopup.google_meet_link!, "_blank")}>
-                          <Video className="h-4 w-4 mr-2" /> Join Google Meet
+                          <Video className="h-4 w-4 mr-2" /> Join Meeting
                         </Button>
                       );
                     }

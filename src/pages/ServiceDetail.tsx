@@ -79,9 +79,8 @@ const ServiceDetail = () => {
   const [selectedSlot, setSelectedSlot] = useState<AvailabilitySlot | null>(null);
   const [canReview, setCanReview] = useState(false);
   const [hasReviewed, setHasReviewed] = useState(false);
-  const [completedTransactionId, setCompletedTransactionId] = useState<string | null>(null);
+  const [completedBookingId, setCompletedBookingId] = useState<string | null>(null);
   const { toast } = useToast();
-
   const loadServiceData = async (serviceId: string) => {
     try {
       setIsLoading(true);
@@ -138,9 +137,9 @@ const ServiceDetail = () => {
     if (!serviceId || !userId) return;
 
     try {
-      // Check for a completed booking for this service by the user
-      const { data: booking, error: bookingError } = await supabase
-        .from('bookings')
+      // Check for a completed booking request for this service by the user
+      const { data: booking, error: bookingError } = await (supabase as any)
+        .from('booking_requests' as any)
         .select('id, status')
         .eq('service_id', serviceId)
         .eq('learner_id', userId)
@@ -155,11 +154,11 @@ const ServiceDetail = () => {
         return;
       }
 
-      // Check if a review already exists for this transaction
-      const { data: existingReview, error: reviewError } = await supabase
-        .from('reviews')
+      // Check if a review already exists for this booking
+      const { data: existingReview, error: reviewError } = await (supabase as any)
+        .from('reviews' as any)
         .select('id')
-        .eq('transaction_id', booking.id)
+        .eq('booking_id', booking.id)
         .eq('reviewer_id', userId)
         .single();
 
@@ -171,7 +170,7 @@ const ServiceDetail = () => {
       } else {
         setHasReviewed(false);
         setCanReview(true);
-        setCompletedTransactionId(booking.id);
+        setCompletedBookingId(booking.id);
       }
     } catch (error) {
       console.error("Error checking review eligibility:", error);
@@ -184,9 +183,6 @@ const ServiceDetail = () => {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setUser(session?.user ?? null);
-        if (!session?.user) {
-          navigate("/auth");
-        }
       }
     );
 
@@ -354,15 +350,15 @@ const ServiceDetail = () => {
                       <div key={review.id} className="border-b pb-4 last:border-b-0">
                         <div className="flex items-start gap-3">
                           <Avatar className="w-8 h-8">
-                            <AvatarImage src={review.profiles.avatar_url} />
+                            <AvatarImage src={review.profiles?.avatar_url || undefined} />
                             <AvatarFallback>
-                              {review.profiles.full_name.charAt(0)}
+                              {review.profiles?.full_name?.charAt(0) || "U"}
                             </AvatarFallback>
                           </Avatar>
                           <div className="flex-1">
                             <div className="flex items-center gap-2 mb-1">
                               <span className="font-medium text-sm">
-                                {review.profiles.full_name}
+                                {review.profiles?.full_name || "User"}
                               </span>
                               <div className="flex items-center">
                                 {[...Array(5)].map((_, i) => (
@@ -394,9 +390,10 @@ const ServiceDetail = () => {
                   <p className="text-muted-foreground">No reviews yet for this service.</p>
                 )}
 
-                {user && canReview && completedTransactionId && provider && (
+                {user && canReview && completedBookingId && provider && (
                   <ReviewForm 
-                    transactionId={completedTransactionId}
+                    bookingId={completedBookingId}
+                    serviceId={service.id}
                     revieweeId={provider.user_id}
                     reviewerId={user.id}
                     onReviewSubmit={async () => {
@@ -439,12 +436,12 @@ const ServiceDetail = () => {
                     <h3 className="font-semibold">{provider.full_name}</h3>
                     <div className="flex items-center gap-1 text-sm">
                       <Star className="h-3 w-3 text-yellow-500" />
-                      <span>{provider.rating.toFixed(1)}</span>
+                      <span>{(provider?.rating ?? 0).toFixed(1)}</span>
                       <span className="text-muted-foreground">
-                        ({provider.total_reviews} reviews)
+                        ({provider?.total_reviews ?? 0} reviews)
                       </span>
                     </div>
-                    {provider.location && (
+                    {provider?.location && (
                       <div className="flex items-center gap-1 text-xs text-muted-foreground mt-1">
                         <MapPin className="h-3 w-3" />
                         <span>{provider.location}</span>
